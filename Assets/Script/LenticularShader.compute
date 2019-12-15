@@ -1,0 +1,47 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel RenderingLenticular
+#pragma kernel RenderingLenticular
+
+struct Pixel
+{
+    int3 R;
+    int3 G;
+    int3 B;
+};
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<int4> Result;
+
+Texture2DArray<int4> InputTextureArray;
+
+RWStructuredBuffer<Pixel> PixelArray;
+
+
+[numthreads(16,32,1)]
+void RenderingLenticular (uint3 id : SV_DispatchThreadID)
+{
+	// TODO: insert actual code here!
+	uint width, height;
+	Result.GetDimensions(width, height);
+
+	int3 R = PixelArray[id.y * width + id.x].R;
+	int3 G = PixelArray[id.y * width + id.x].G;
+	int3 B = PixelArray[id.y * width + id.x].B;
+	
+	int4 pixR = InputTextureArray.Load(int4(R.x, R.y, R.z, 0));
+	int4 pixG = InputTextureArray.Load(int4(G.x, G.y, G.z, 0));
+	int4 pixB = InputTextureArray.Load(int4(B.x, B.y, B.z, 0));
+
+	Result[id.xy] = int4(    pixR.r
+						   , pixG.g
+	                       , pixB.b
+						   , 0
+						 );
+}
+
+[numthreads(8,8,1)]
+void CreateLenticularPixelArray (uint3 id : SV_DispatchThreadID)
+{
+	
+}
